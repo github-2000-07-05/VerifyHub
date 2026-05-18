@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  name          String
+  role          String    @default("user") // user, admin
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  projects      Project[]
+  verification  Verification?
+  
+  @@index([role])
+}
+
+model Project {
+  id            String       @id @default(cuid())
+  name          String
+  description   String?
+  apiKey        String       @unique
+  userId        String
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emailSubject  String       @default("验证码验证")
+  emailContent  String       @default("您的验证码是：{{code}}")
+  requestLogs   RequestLog[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model Verification {
+  id            String    @id @default(cuid())
+  requestId     String    @unique @default(cuid())
+  userId        String?   @unique
+  user          User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  email         String?
+  code          String
+  expiresAt     DateTime
+  status        String    @default("pending") // pending, verified, expired, invalid
+  attemptCount  Int       @default(0)
+  maxAttempts   Int       @default(3)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now())
+
+  @@index([email])
+  @@index([requestId])
+  @@index([status])
+}
+
+model RequestLog {
+  id            String    @id @default(cuid())
+  projectId     String
+  project       Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  email         String
+  status        String    @default("pending")
+  errorMessage  String?
+  createdAt     DateTime  @default(now())
+
+  @@index([projectId])
+  @@index([createdAt])
+}
