@@ -30,11 +30,12 @@ export async function GET(request: Request) {
       access_token: tokens.access_token,
       instructions: '请将 refresh_token 保存到环境变量 OAUTH_REFRESH_TOKEN 中'
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('OAuth2 callback error:', error);
+    const message = error instanceof Error ? error.message : '未知错误';
     return NextResponse.json({
       success: false,
-      message: `OAuth2 授权失败: ${error.message}`
+      message: `OAuth2 授权失败: ${message}`
     }, { status: 500 });
   }
 }

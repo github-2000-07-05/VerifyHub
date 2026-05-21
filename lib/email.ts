@@ -77,8 +77,9 @@ export const exchangeCodeForTokens = async (code: string): Promise<{ refresh_tok
       refresh_token: response.data.refresh_token,
       access_token: response.data.access_token,
     };
-  } catch (error: any) {
-    console.error('Token exchange failed:', error.response?.data || error.message);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '未知错误';
+    console.error('Token exchange failed:', message);
     throw new Error('Failed to exchange code for tokens');
   }
 };

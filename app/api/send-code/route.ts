@@ -16,7 +16,18 @@ const securityHeaders = {
   'Content-Security-Policy': "default-src 'self'",
 };
 
-const jsonResponse = (data: any, init?: ResponseInit) => {
+interface JsonResponseData {
+  success: boolean;
+  message: string;
+  status?: string;
+  requestId?: string;
+  remainingAttempts?: number;
+  attemptCount?: number;
+  expiresAt?: Date;
+  createdAt?: Date;
+}
+
+const jsonResponse = (data: JsonResponseData, init?: ResponseInit) => {
   return NextResponse.json(data, {
     ...init,
     headers: {
@@ -201,7 +212,7 @@ export async function POST(request: Request) {
     }
 
     return jsonResponse({ success: true, message: '验证码已发送到您的邮箱' });
-  } catch (error: any) {
+  } catch (error) {
     console.error('发送邮件失败:', error);
 
     return jsonResponse({ success: false, message: '发送邮件失败，请稍后重试' }, { status: 500 });
@@ -334,7 +345,7 @@ export async function PUT(request: Request) {
       message: '验证成功',
       requestId: verification.requestId
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('验证失败:', error);
     return jsonResponse({ success: false, message: '验证失败，请稍后重试' }, { status: 500 });
   }
@@ -366,7 +377,7 @@ export async function GET(request: Request) {
       expiresAt: verification.expiresAt,
       createdAt: verification.createdAt
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('查询验证码状态失败:', error);
     return jsonResponse({ success: false, message: '查询失败，请稍后重试' }, { status: 500 });
   }

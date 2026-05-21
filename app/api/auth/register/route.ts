@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import prisma from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
+import nodemailer from 'nodemailer';
 
 const generateCode = (): string => {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -64,13 +65,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: '该邮箱已被注册' }, { status: 400 });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     const verificationCode = generateCode();
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
     const requestId = generateRequestId();
 
-    const verification = await prisma.verification.create({
+    await prisma.verification.create({
       data: {
         email,
         code: verificationCode,
@@ -97,7 +96,7 @@ export async function POST(request: Request) {
     };
 
     if (process.env.EMAIL_SERVICE === 'qq') {
-      const transporter = require('nodemailer').createTransport({
+      const transporter = nodemailer.createTransport({
         host: 'smtp.qq.com',
         port: 465,
         secure: true,

@@ -10,11 +10,12 @@ export async function GET() {
       authUrl,
       instructions: '访问 authUrl 获取授权码，然后访问 /api/oauth2/callback?code=你的授权码'
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('OAuth2 authorize error:', error);
+    const message = error instanceof Error ? error.message : '未知错误';
     return NextResponse.json({
       success: false,
-      message: `获取授权链接失败: ${error.message}`
+      message: `获取授权链接失败: ${message}`
     }, { status: 500 });
   }
 }
