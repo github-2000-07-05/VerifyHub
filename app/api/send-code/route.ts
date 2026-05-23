@@ -370,6 +370,7 @@ export async function GET(request: Request) {
 
     return jsonResponse({
       success: true,
+      message: '查询成功',
       status: verification.status,
       requestId: verification.requestId,
       attemptCount: verification.attemptCount,
