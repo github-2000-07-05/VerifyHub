@@ -10,7 +10,8 @@ const RATE_LIMIT_CONFIG = {
 };
 
 export function middleware(request: NextRequest) {
-  const ip = request.headers.get('x-forwarded-for') || request.ip || 'unknown';
+  const forwardedFor = request.headers.get('x-forwarded-for');
+  const ip = forwardedFor ? forwardedFor.split(',')[0] : request.headers.get('x-real-ip') || 'unknown';
   const path = request.nextUrl.pathname;
 
   const config = Object.entries(RATE_LIMIT_CONFIG).find(([route]) => path.startsWith(route));
